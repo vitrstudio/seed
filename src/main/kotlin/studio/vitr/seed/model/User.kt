@@ -1,18 +1,16 @@
 package studio.vitr.seed.model
 
-import com.fasterxml.jackson.annotation.JsonManagedReference
-import jakarta.persistence.*
-import jakarta.persistence.CascadeType.ALL
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 import java.util.*
+import jakarta.persistence.GenerationType.UUID as UUIDX
 
 @Entity
 @Table(name = "users")
 data class User(
-    @Id @GeneratedValue(strategy = GenerationType.UUID) val id: UUID? = null,
-    val githubUserId: Long,
+    @Id @GeneratedValue(strategy = UUIDX) val id: UUID? = null,
+    val email: String,
     val createdAt: Long = System.currentTimeMillis(),
-
-    @JsonManagedReference
-    @OneToMany(mappedBy = "user", cascade = [ALL], orphanRemoval = true)
-    val projects: List<Project> = mutableListOf()
 )
