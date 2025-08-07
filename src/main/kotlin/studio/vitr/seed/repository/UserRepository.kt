@@ -6,4 +6,7 @@ import studio.vitr.seed.model.User
 import java.util.UUID
 
 @Repository
-interface UserRepository : JpaRepository<User, UUID>
+interface UserRepository : JpaRepository<User, UUID> {
+
+    fun findByEmail(email: String): User?
+}

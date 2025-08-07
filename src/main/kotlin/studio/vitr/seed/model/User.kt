@@ -12,5 +12,6 @@ import jakarta.persistence.GenerationType.UUID as UUIDX
 data class User(
     @Id @GeneratedValue(strategy = UUIDX) val id: UUID? = null,
     val email: String,
+    val password: String,
     val createdAt: Long = System.currentTimeMillis(),
 )

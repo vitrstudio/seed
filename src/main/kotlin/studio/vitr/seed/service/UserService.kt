@@ -8,7 +8,10 @@ import studio.vitr.seed.repository.UserRepository
 import java.util.UUID
 
 @Service
-class UserService(val userRepository: UserRepository) {
+class UserService(
+    val userRepository: UserRepository,
+    private val passwordEncoderService: PasswordEncoderService
+) {
 
     fun getAll(): List<User> = userRepository.findAll()
 
@@ -21,4 +24,10 @@ class UserService(val userRepository: UserRepository) {
     fun delete(userId: UUID) = get(userId)
         ?.let { userRepository.delete(it) }
         ?: throw NotFound(USER, userId.toString())
+
+    fun verifyPassword(userId: UUID, password: String) = get(userId)
+        ?.let { passwordEncoderService.verifyPassword(password, it.password) }
+        ?: throw NotFound(USER, userId.toString())
+
+    fun findByEmail(email: String) = userRepository.findByEmail(email)
 }

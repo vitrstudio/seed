@@ -4,7 +4,9 @@ import org.springframework.web.bind.annotation.*
 import studio.vitr.seed.adapter.UserAdapter
 import studio.vitr.seed.constants.Properties.USER
 import studio.vitr.seed.errors.NotFound
-import studio.vitr.seed.model.api.UserRequest
+import studio.vitr.seed.model.api.CreateUserRequest
+import studio.vitr.seed.model.api.PasswordVerificationRequest
+import studio.vitr.seed.model.api.PasswordVerificationResponse
 import studio.vitr.seed.service.UserService
 import java.util.UUID
 
@@ -25,10 +27,19 @@ class UserController(
         ?: throw NotFound(USER, userId.toString())
 
     @PostMapping
-    fun createUser(@RequestBody request: UserRequest) = userAdapter
+    fun createUser(@RequestBody request: CreateUserRequest) = userAdapter
         .toUser(request)
         .let { userService.create(it) }
 
     @DeleteMapping("/{userId}")
     fun deleteUser(@PathVariable userId: UUID) = userService.delete(userId)
+        
+    @PostMapping("/{userId}/verify-password")
+    fun verifyPassword(
+        @PathVariable userId: UUID,
+        @RequestBody request: PasswordVerificationRequest
+    ): PasswordVerificationResponse {
+        val isValid = userService.verifyPassword(userId, request.password)
+        return PasswordVerificationResponse(isValid = isValid)
+    }
 }
