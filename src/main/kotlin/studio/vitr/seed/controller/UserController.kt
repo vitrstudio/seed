@@ -1,35 +1,44 @@
 package studio.vitr.seed.controller
 
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import studio.vitr.seed.adapter.UserAdapter
 import studio.vitr.seed.constants.Properties.USER
+import studio.vitr.seed.errors.Forbidden
 import studio.vitr.seed.errors.NotFound
 import studio.vitr.seed.model.api.CreateUserRequest
 import studio.vitr.seed.model.api.PasswordVerificationRequest
 import studio.vitr.seed.model.api.PasswordVerificationResponse
 import studio.vitr.seed.service.UserService
-import java.util.UUID
+import java.util.*
 
 @RestController
 @RequestMapping("/users")
 class UserController(
     private val userService: UserService,
-    private val userAdapter: UserAdapter,
+    private val adapter: UserAdapter,
 ) {
 
     @GetMapping
     fun getUsers() = userService.getAll()
-        .map { userAdapter.toUserResponse(it) }
+        .map { adapter.toUserResponse(it) }
+
+    @GetMapping("/me")
+    fun getCurrentUser() = authenticatedUsername()
+        .let { UUID.fromString(it) }
+        .let { userService.get(it) }
+        ?.let { adapter.toUserResponse(it) }
+        ?: throw Forbidden(authenticatedUsername())
 
     @GetMapping("/{userId}")
     fun getUser(@PathVariable userId: UUID) = userService.get(userId)
-        ?.let { userAdapter.toUserResponse(it) }
+        ?.let { adapter.toUserResponse(it) }
         ?: throw NotFound(USER, userId.toString())
 
     @PostMapping
-    fun createUser(@RequestBody request: CreateUserRequest) = userAdapter
-        .toUser(request)
-        .let { userService.create(it) }
+    fun createUser(@RequestBody request: CreateUserRequest) = userService
+        .create(request.email, request.password)
+        .let { adapter.toUserResponse(it) }
 
     @DeleteMapping("/{userId}")
     fun deleteUser(@PathVariable userId: UUID) = userService.delete(userId)
@@ -38,8 +47,9 @@ class UserController(
     fun verifyPassword(
         @PathVariable userId: UUID,
         @RequestBody request: PasswordVerificationRequest
-    ): PasswordVerificationResponse {
-        val isValid = userService.verifyPassword(userId, request.password)
-        return PasswordVerificationResponse(isValid = isValid)
-    }
+    ) = userService
+        .verifyPassword(userId, request.password)
+        .let { PasswordVerificationResponse(isValid = it) }
+
+    private fun authenticatedUsername() = SecurityContextHolder.getContext().authentication.name
 }

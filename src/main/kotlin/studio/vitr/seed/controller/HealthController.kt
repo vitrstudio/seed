@@ -3,6 +3,8 @@ package studio.vitr.seed.controller
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
+import studio.vitr.seed.model.api.Health
+import studio.vitr.seed.model.api.HealthStatus
 
 @RestController
 class HealthController(
@@ -11,11 +13,5 @@ class HealthController(
 ) {
 
     @GetMapping("/health")
-    fun health(): Map<String, Any> {
-        val appVersion = appVersion
-        return mapOf(
-            "status" to "UP",
-            "version" to appVersion
-        )
-    }
+    fun health() = Health(HealthStatus.UP, appVersion)
 }
