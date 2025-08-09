@@ -1,9 +1,10 @@
 name: Deploy to AWS
 
-# Comment this out to enable the CI/CD pipeline
 on:
-  #push:
-    # branches: [main]
+  # Remove comment to auto-run on every push to main
+  # push:
+  #   branches: [main]
+  workflow_dispatch:  # manual trigger only
 
 jobs:
   deploy:
