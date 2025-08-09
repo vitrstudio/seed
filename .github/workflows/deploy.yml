@@ -54,15 +54,18 @@ jobs:
           RDS_ENDPOINT=$(aws ssm get-parameter --name /seed/rds_endpoint --with-decryption --query Parameter.Value --output text)
           DEPLOYMENT_BUCKET=$(aws ssm get-parameter --name /seed/deployment_bucket --with-decryption --query Parameter.Value --output text)
           DB_PASSWORD=$(aws ssm get-parameter --name /seed/db_password --with-decryption --query Parameter.Value --output text)
+          JWT_SECRET=$(aws ssm get-parameter --name /seed/jwt_secret --with-decryption --query Parameter.Value --output text)
 
           echo "::add-mask::$DB_PASSWORD"
           echo "::add-mask::$DEPLOYMENT_BUCKET"
           echo "::add-mask::$RDS_ENDPOINT"
+          echo "::add-mask::$JWT_SECRET"
 
           echo "EC2_INSTANCE_ID=$EC2_INSTANCE_ID" >> $GITHUB_ENV
           echo "RDS_ENDPOINT=$RDS_ENDPOINT" >> $GITHUB_ENV
           echo "DEPLOYMENT_BUCKET=$DEPLOYMENT_BUCKET" >> $GITHUB_ENV
           echo "DB_PASSWORD=$DB_PASSWORD" >> $GITHUB_ENV
+          echo "JWT_SECRET=$JWT_SECRET" >> $GITHUB_ENV
 
       - name: Get JAR filename
         run: |
